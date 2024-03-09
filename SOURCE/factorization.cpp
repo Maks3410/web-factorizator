@@ -21,6 +21,36 @@ struct constant_and_answer {
     vector<polynomial> answer;
 };
 
+int calculate(const polynomial &f, int n) { // Считает значение многочлена в целой точке
+    int sum = 0;
+    int p = 0;
+    for (auto i : f.monomials) {
+        sum += i * (int) (pow(n, p++));
+    }
+    return sum;
+}
+
+bool equal(double x, double y) { // Сравнивает два числа с плавающей точкой
+    return fabs(x - y) < 1e-9;
+}
+
+success_and_result divide(polynomial A, polynomial B) { // Делит многочлен на многочлен
+    int n = (int) A.monomials.size() - 1;
+    int m = (int) B.monomials.size() - 1;
+    polynomial Q{vector<int>(n - m + 1)};
+    for (int i = n; i >= m; i--) {
+        Q.monomials[i - m] = A.monomials[i] / B.monomials[m];
+        for (int j = m; j >= 0; j--)
+            A.monomials[i - m + j] -= B.monomials[j] * Q.monomials[i - m];
+    }
+    while (!A.monomials.empty() && equal(A.monomials.back(), 0))
+        A.monomials.pop_back();
+    if (A.monomials.empty())
+        return success_and_result{true, Q};
+    else
+        return success_and_result{false};
+}
+
 string str_polynomial(pair<vector<int>, int> a, bool brackets) {  // Красиво и понятно выводит на экран многочлен
     int n = a.first.size() - 1;
     stringstream str_ans;
