@@ -1,0 +1,11 @@
+# ninja log v5
+0	316	7313429809658343	CMakeFiles/TRPP_Project.dir/SOURCE/factorization.cpp.obj	b039c397a6185bcd
+317	410	7313429810583727	TRPP_Project.exe	1f2e5dda720f9335
+2	289	7313430117940827	CMakeFiles/TRPP_Project.dir/SOURCE/factorization.cpp.obj	b039c397a6185bcd
+289	346	7313430118490845	TRPP_Project.exe	1f2e5dda720f9335
+2	283	7313430259453874	CMakeFiles/TRPP_Project.dir/SOURCE/factorization.cpp.obj	b039c397a6185bcd
+283	338	7313430259978996	TRPP_Project.exe	1f2e5dda720f9335
+2	285	7313430313391036	CMakeFiles/TRPP_Project.dir/SOURCE/factorization.cpp.obj	b039c397a6185bcd
+285	340	7313430313916496	TRPP_Project.exe	1f2e5dda720f9335
+2	285	7313430486711298	CMakeFiles/TRPP_Project.dir/SOURCE/factorization.cpp.obj	b039c397a6185bcd
+285	343	7313430487276285	TRPP_Project.exe	1f2e5dda720f9335
