@@ -4,18 +4,31 @@
     <meta charset="UTF-8">
     <title>Факторизация многочленов</title>
 
-    <link rel="stylesheet" href="C:\Users\main\WebstormProjects\TRPP_Project\CSS\style.css" type="text/css">
+    <link rel="stylesheet" href="../CSS/style.css" type="text/css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
           rel="stylesheet">
-
+    <script src="../JS/script.js"></script>
 </head>
 <body>
 <main>
     <div class="title">Введите многочлен:</div>
-    <input type="text">
+    <form>
+        <input type="text" placeholder="x^3 + 2*x^2 - 3*x + 5" id="input-id" oninput="validateInput(this)">
+        <br>
+        <button type="button" onclick="calculatePolynomial()">Факторизовать многочлен</button>
+
+    </form>
+
+    <div id="result"></div>
+
+    <p class="ptitle">Подсказки</p>
+    <p>^ - возведение в степень<br>
+        * - умножение<br>
+        / - деление<br>
+    </p>
 </main>
 
 </body>
