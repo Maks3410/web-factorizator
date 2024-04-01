@@ -51,6 +51,42 @@ success_and_result divide(polynomial A, polynomial B) { // Делит много
         return success_and_result{false};
 }
 
+vector<int> find_divisors(int n) {
+    vector<int> ans;
+    int i;
+    ans.push_back(1);
+    ans.push_back(-1);
+    for (i = 2; i * i < n; i++) {
+        if (n % i == 0) {
+            ans.push_back(i);
+            ans.push_back(-i);
+            ans.push_back(n / i);
+            ans.push_back(-n / i);
+        }
+    }
+    if (i * i == n) {
+        ans.push_back(i);
+        ans.push_back(-i);
+    }
+    if (n != 1) {
+        ans.push_back(n);
+        ans.push_back(-n);
+    }
+    return ans;
+}
+
+vector<vector<int>> direct_multiplication(const vector<vector<int>> &A, const vector<int> &B) {
+    vector<vector<int>> ans;
+    for (const auto &a : A) {
+        for (const int &b : B) {
+            auto t(a);
+            t.push_back(b);
+            ans.push_back(t);
+        }
+    }
+    return ans;
+}
+
 string str_polynomial(pair<vector<int>, int> a, bool brackets) {  // Красиво и понятно выводит на экран многочлен
     int n = a.first.size() - 1;
     stringstream str_ans;
