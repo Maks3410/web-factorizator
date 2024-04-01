@@ -87,6 +87,39 @@ vector<vector<int>> direct_multiplication(const vector<vector<int>> &A, const ve
     return ans;
 }
 
+vector<double> get_lagrange(const vector<double> &x, vector<double> f) {
+    int N = x.size();   // Высчитывает интерполяционный многочлен Лагранжа по данному набору точек
+    vector<double> c(N), temp(N);
+
+    c[0] = f[0];
+    for (int i = 1; i < N; i++) {
+        for (int j = 0; j < N - i; j++) temp[j] = (f[j + 1] - f[j]) / (x[j + i] - x[j]);
+        f = temp;
+        c[i] = f[0];
+    }
+    return c;
+}
+
+vector<double> standard_polynomial(const vector<double> &c, const vector<double> &x) {
+    int N = x.size();   // Приводит многочлен к стандартному виду
+    vector<double> a(N, 0.0);
+    vector<double> p(N), prev(N);
+
+    p[0] = 1;
+    a[0] = c[0] * p[0];
+    for (int i = 1; i < N; i++) {
+        prev = p;
+        p[0] = -x[i - 1] * prev[0];
+        a[0] += c[i] * p[0];
+        for (int j = 1; j <= i; j++) {
+            p[j] = prev[j - 1] - x[i - 1] * prev[j];
+            a[j] += c[i] * p[j];
+        }
+    }
+
+    return a;
+}
+
 string str_polynomial(pair<vector<int>, int> a, bool brackets) {  // Красиво и понятно выводит на экран многочлен
     int n = a.first.size() - 1;
     stringstream str_ans;
