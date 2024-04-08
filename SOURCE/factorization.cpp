@@ -169,6 +169,42 @@ string str_polynomial(pair<vector<int>, int> a, bool brackets) {  // Краси�
     return str_ans.str();
 }
 
+constant_and_answer remove_constant(const vector<polynomial>& a) {
+    int constant = 1;
+    vector<polynomial> b;
+    for (auto poly : a) {
+        vector<int> monos = poly.monomials;
+        int t_constant = gcd(monos[0], monos[1]);
+        for (int i = 2; i < monos.size(); ++i) {
+            t_constant = gcd(t_constant, monos[i]);
+        }
+        for (int & mono : monos) {
+            mono /= t_constant;
+        }
+        constant *= t_constant;
+        poly.monomials = monos;
+        b.push_back(poly);
+    }
+
+    return constant_and_answer{constant, b};
+}
+
+map<vector<int>, int> get_degrees(const vector<polynomial>& a) {
+    map<vector<int>, int> b;
+    map<vector<int>, int> :: iterator it;
+    for (const auto& poly : a) {
+        it = b.find(poly.monomials);
+        if (it != b.end()) {
+            it->second++;
+        }
+        else {
+            b.insert(make_pair(poly.monomials, 1));
+        }
+    }
+
+    return b;
+}
+
 int main() {
     polynomial p;
     p.monomials = vector<int>{4, 3, 2, 1};
