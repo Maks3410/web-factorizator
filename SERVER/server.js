@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 3000;
 
 // Используем body-parser для обработки тела запроса в формате JSON
 app.use(bodyParser.json());
-
+const cors = require("cors");
+app.use(cors());
 // Обработчик GET запроса
 app.get('/execute', (req, res) => {
     const inputString = req.query.string; // Получаем параметр 'string' из запроса
