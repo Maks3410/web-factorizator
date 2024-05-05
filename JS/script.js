@@ -1,25 +1,20 @@
-function validateInput(input) {
-    var validCharacters = '0123456789xX^+-*.';  // Разрешенные символы
-    var inputValue = input.value;
-    var sanitizedInput = '';
+window.onload = function(){
+    document.getElementById('polynomialForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Предотвращаем отправку формы по умолчанию
 
-    // Проверяем каждый символ во введенном значении
-    for (var i = 0; i < inputValue.length; i++) {
-        var currentChar = inputValue.charAt(i);
+        const degree = document.getElementById('degree').value;
+        const coefficients = document.getElementById('coefficients').value;
+        alert(coefficients);
+        // Отправляем запрос на сервер
 
-        // Если текущий символ разрешен, добавляем его в очищенную строку
-        if (validCharacters.includes(currentChar)) {
-            sanitizedInput += currentChar;
-        }
-    }
-
-    input.value = sanitizedInput;
-}
-
-function calculatePolynomial() {
-    var polynomialInput = document.getElementById('input-id').value;
-
-    alert(polynomialInput);
-
-    document.getElementById('result').innerHTML = "Введенный многочлен: " + '\n' + polynomialInput;
+        fetch(`http://localhost:3000/execute?string=${coefficients}`)
+            .then(response => response.json())
+            .then(data => {
+                // Отображаем результат на странице
+                document.getElementById('result').innerText = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
 }

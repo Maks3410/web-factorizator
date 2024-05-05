@@ -16,8 +16,12 @@ app.get('/execute', (req, res) => {
         return res.status(400).json({ error: 'Параметр "string" не предоставлен' });
     }
 
+    inputString.replaceAll("%20", " ");
+    console.log(inputString);
     // Запускаем внешнее приложение
-    const command = `poly.exe ${inputString}`;
+    const command = `poly.exe "${inputString}"`;
+
+
 
     exec(command, (error, stdout, stderr) => {
         if (error) {

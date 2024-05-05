@@ -3,6 +3,12 @@
 #include <cmath>
 #include <sstream>
 #include <map>
+#include <pistache/endpoint.h>
+#include <pistache/http.h>
+#include <pistache/router.h>
+#include <pistache/http_header.h>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -51,9 +57,10 @@ success_and_result divide(polynomial A, polynomial B) { // Делит много
         return success_and_result{false};
 }
 
-vector<int> find_divisors(int n) {
+vector<int> find_divisors(int n) { // Находит целые делители целого цисла
     vector<int> ans;
     int i;
+    n = abs(n);
     ans.push_back(1);
     ans.push_back(-1);
     for (i = 2; i * i < n; i++) {
@@ -68,7 +75,7 @@ vector<int> find_divisors(int n) {
         ans.push_back(i);
         ans.push_back(-i);
     }
-    if (n != 1) {
+    if (n != 1 && n != -1) {
         ans.push_back(n);
         ans.push_back(-n);
     }
@@ -76,7 +83,7 @@ vector<int> find_divisors(int n) {
 }
 
 vector<vector<int>> direct_multiplication(const vector<vector<int>> &A, const vector<int> &B) {
-    vector<vector<int>> ans;
+    vector<vector<int>> ans;   // Реализует прямое произведение множеств
     for (const auto &a : A) {
         for (const int &b : B) {
             auto t(a);
@@ -118,6 +125,25 @@ vector<double> standard_polynomial(const vector<double> &c, const vector<double>
     }
 
     return a;
+}
+
+success_and_result interpol_lagrange(const vector<double> &x, const vector<double> &y) {
+    vector<double> c = get_lagrange(x, y);      // Переводит полученный многочлен в виде вектора
+    vector<double> arrayp = standard_polynomial(c, x);  // вещественных чисел в многочлен типа polynomial
+
+    polynomial ans;
+    for (double i : arrayp) {
+        if (!equal(i, int(i))) {
+            return success_and_result{false};
+        } else {
+            ans.monomials.push_back((int) (i));
+        }
+    }
+
+    while (!ans.monomials.empty() && equal(ans.monomials.back(), 0))
+        ans.monomials.pop_back();
+
+    return success_and_result{ans.monomials.size() == x.size(), ans};
 }
 
 string str_polynomial(pair<vector<int>, int> a, bool brackets) {  // Красиво и понятно выводит на экран многочлен
@@ -169,6 +195,71 @@ string str_polynomial(pair<vector<int>, int> a, bool brackets) {  // Краси�
     return str_ans.str();
 }
 
+success_and_result factorize(const polynomial &f) {  // Факторизует многочлен
+    polynomial g;
+    vector<int> M;
+    vector<vector<int>> U;
+    success_and_result interpol;
+
+
+    for (int i = 0; i * 2 <= f.degree; i++) {  // Поиск линейных делителей вида x - i
+        if (calculate(f, i) == 0) {
+            g.monomials = vector<int>{-i, 1};
+            g.degree = 1;
+            return success_and_result{true, g};
+        }
+    }
+    auto f0 = calculate(f, 0);
+    auto divisors_f0 = find_divisors(f0);
+    U = direct_multiplication(vector<vector<int>>(1), divisors_f0);
+    for (int i = 1; i * 2 <= f.degree; i++) {   // Поиск остальных возможных делителей
+        auto fi = calculate(f, i);
+        M = find_divisors(fi);
+        U = direct_multiplication(U, M);
+        vector<double> x;
+        for (int j = 0; j <= i; j++) {
+            x.push_back(j);
+        }
+        for (const auto &u : U) {
+            vector<double> y;
+            for (int j = 0; j <= i; j++) {
+                y.push_back(double(u.at(j)));
+            }
+
+            interpol = interpol_lagrange(x, y);
+
+            if (interpol.success) {
+                g = interpol.result;
+                if (divide(f, g).success) {
+                    g.degree = i;
+                    return success_and_result{true, g};
+                }
+            }
+        }
+    }
+    return success_and_result{false};
+}
+
+int count(const string& s, char c) {
+    int cnt = 0;
+    for (char i : s) {
+        if (i == c) cnt++;
+    }
+    return cnt;
+}
+
+int gcd(int a, int b) {
+    a = abs(a);
+    b = abs(b);
+    if (a % b == 0)
+        return b;
+    if (b % a == 0)
+        return a;
+    if (a > b)
+        return gcd(a%b, b);
+    return gcd(a, b%a);
+}
+
 constant_and_answer remove_constant(const vector<polynomial>& a) {
     int constant = 1;
     vector<polynomial> b;
@@ -192,6 +283,7 @@ constant_and_answer remove_constant(const vector<polynomial>& a) {
 map<vector<int>, int> get_degrees(const vector<polynomial>& a) {
     map<vector<int>, int> b;
     map<vector<int>, int> :: iterator it;
+
     for (const auto& poly : a) {
         it = b.find(poly.monomials);
         if (it != b.end()) {
@@ -205,10 +297,130 @@ map<vector<int>, int> get_degrees(const vector<polynomial>& a) {
     return b;
 }
 
-int main() {
-    polynomial p;
-    p.monomials = vector<int>{4, 3, 2, 1};
-    p.degree = 3;
-    cout << str_polynomial(make_pair(p.monomials, 0), false);
+string get_str_answer(const string& req) {
+    int n;
+    stringstream ss;
+    stringstream str_ans;
+    bool brackets = false;
+
+    n = count(req, ' ');
+    if (n == 0) {
+        return "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+               "p, li { white-space: pre-wrap; }\n"
+               "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
+               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:20pt;\"><br /></p>\n"
+               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt; color:#ff0000;\">Неверный формат введенных данных!</span></p></body></html>";
+    }
+
+    ss << req;
+    polynomial a{vector<int>(n + 1), n};
+
+    for (int i = n; i >= 0; --i) {
+        ss >> a.monomials[i];
+    }
+
+    str_ans << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+               "p, li { white-space: pre-wrap; }\n"
+               "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
+               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
+               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
+               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">Введенный многочлен: </span></p>\n"
+               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">";
+    str_ans << str_polynomial(make_pair(a.monomials, 1), brackets);
+
+    auto factor = factorize(a);
+    brackets = factor.success;
+    vector<polynomial> answer;
+    while (factor.success) {
+        answer.push_back(factor.result);
+        a = divide(a, factor.result).result;
+        factor = factorize(a);
+    }
+
+    if (!a.monomials.empty()) {
+        answer.push_back(a);
+    }
+
+    int constant;
+    auto b = remove_constant(answer);
+    constant = b.constant;
+    answer = b.answer;
+    if (!brackets)
+        brackets = (constant != 1);
+
+    map<vector<int>, int> answer_with_degrees;
+
+    answer_with_degrees = get_degrees(answer);
+
+    str_ans << "</span></p>\n"
+               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:20pt;\"><br /></p>\n"
+               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">Разложение на неприводимые множители:</span></p>\n"
+               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">";
+
+    if (constant > 1) str_ans << constant;
+    for (const auto &poly_and_degree : answer_with_degrees) {
+        str_ans << str_polynomial(poly_and_degree, brackets);
+    }
+    str_ans << "</span></p></body></html>";
+    return str_ans.str();
 }
 
+class MyHandler {
+public:
+    HTTP::ResponseHandle fact(const Rest::Request& request, Http::ResponseWriter response) {
+        try {
+            auto body = request.body();
+
+            // Парсинг JSON из тела запроса
+            auto json = nlohmann::json::parse(body);
+
+            // Получаем строку многочлена из JSON
+            string polynomial_str = json["polynomial"];
+
+            // Здесь можно выполнить парсинг строки многочлена в структуру polynomial
+
+            // Выполняем факторизацию многочлена
+            polynomial poly; // Здесь нужно проинициализировать ваш многочлен из строки polynomial_str
+            auto result = factorize(poly);
+
+            // Преобразование результата факторизации обратно в JSON
+            nlohmann::json response_json;
+            // Здесь преобразуйте result.result в JSON
+            response_json["success"] = result.success;
+            // Здесь добавьте преобразованный результат факторизации в response_json
+
+            // Отправляем JSON в качестве ответа
+            return response.send(Http::Code::Ok, response_json.dump(), MIME(Application, Json));
+        } catch (const exception& e) {
+            return response.send(Http::Code::Internal_Server_Error, e.what());
+        }
+    }
+};
+
+int main() {
+//     string req = "4 24 80 136 108 32";
+//     cout << get_str_answer(req);
+
+    Address addr(Ipv4::any(), Port(9080));
+    auto opts = Http::Endpoint::options().threads(1);
+    Http::Endpoint server(addr);
+    server.init(opts);
+
+    // Создание маршрутизатора
+    Rest::Router router;
+
+    // Обработчик POST-запросов для URL '/factorize'
+    MyHandler myHandler;
+    router.post("/factorize", Rest::Routes::bind(&MyHandler::fact, &myHandler));
+
+    // Установка маршрутов
+    server.setHandler(router.handler());
+
+    // Запуск сервера
+    server.serve();
+    return 0;
+}

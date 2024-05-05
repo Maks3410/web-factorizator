@@ -14,21 +14,15 @@
 </head>
 <body>
 <main>
-    <div class="title">Введите многочлен:</div>
-    <form>
-        <input type="text" placeholder="x^3 + 2*x^2 - 3*x + 5" id="input-id" oninput="validateInput(this)">
-        <br>
-        <button type="button" onclick="calculatePolynomial()">Факторизовать многочлен</button>
-
+    <h1>Factorize Polynomial</h1>
+    <form id="polynomialForm">
+        <label for="degree">Degree:</label>
+        <input type="number" id="degree" name="degree"><br><br>
+        <label for="coefficients">Coefficients (comma-separated):</label>
+        <input type="text" id="coefficients" name="coefficients"><br><br>
+        <button type="submit">Factorize</button>
     </form>
-
     <div id="result"></div>
-
-    <p class="ptitle">Подсказки</p>
-    <p>^ - возведение в степень<br>
-        * - умножение<br>
-        / - деление<br>
-    </p>
 </main>
 
 </body>
