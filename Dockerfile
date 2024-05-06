@@ -1,10 +1,9 @@
-FROM node:latest
+FROM nginx:latest
 
-COPY . /app
+WORKDIR /app
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY HTML/ .
 
-RUN cd /app && npm install # установка зависимостей
-RUN cd /app && npm run build # сборка
+EXPOSE 8000
 
-CMD ["node", "/SERVER/server.js"]
-
-EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]

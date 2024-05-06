@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
+const path = require('path');
+const polyPath = path.resolve(__dirname, 'poly.exe');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,7 +22,7 @@ app.get('/execute', (req, res) => {
     inputString.replaceAll("%20", " ");
     console.log(inputString);
     // Запускаем внешнее приложение
-    const command = `poly.exe "${inputString}"`;
+    const command = `"${polyPath}" "${inputString}"`;
 
 
 

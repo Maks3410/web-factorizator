@@ -2,13 +2,10 @@
 #include <vector>
 #include <cmath>
 #include <sstream>
+
+
 #include <map>
-#include <pistache/endpoint.h>
-#include <pistache/http.h>
-#include <pistache/router.h>
-#include <pistache/http_header.h>
-#include <iostream>
-#include <sstream>
+
 
 using namespace std;
 
@@ -142,6 +139,7 @@ success_and_result interpol_lagrange(const vector<double> &x, const vector<doubl
 
     while (!ans.monomials.empty() && equal(ans.monomials.back(), 0))
         ans.monomials.pop_back();
+
 
     return success_and_result{ans.monomials.size() == x.size(), ans};
 }
@@ -294,6 +292,7 @@ map<vector<int>, int> get_degrees(const vector<polynomial>& a) {
         }
     }
 
+
     return b;
 }
 
@@ -305,13 +304,7 @@ string get_str_answer(const string& req) {
 
     n = count(req, ' ');
     if (n == 0) {
-        return "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-               "p, li { white-space: pre-wrap; }\n"
-               "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
-               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:20pt;\"><br /></p>\n"
-               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt; color:#ff0000;\">Неверный формат введенных данных!</span></p></body></html>";
+        return "Неверный формат введенных данных!\n";
     }
 
     ss << req;
@@ -321,16 +314,8 @@ string get_str_answer(const string& req) {
         ss >> a.monomials[i];
     }
 
-    str_ans << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-               "p, li { white-space: pre-wrap; }\n"
-               "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
-               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
-               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;\"><br /></p>\n"
-               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">Введенный многочлен: </span></p>\n"
-               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">";
-    str_ans << str_polynomial(make_pair(a.monomials, 1), brackets);
+    str_ans << "Введенный многочлен:\n";
+    str_ans << str_polynomial(make_pair(a.monomials, 1), brackets) << "\n";
 
     auto factor = factorize(a);
     brackets = factor.success;
@@ -356,71 +341,17 @@ string get_str_answer(const string& req) {
 
     answer_with_degrees = get_degrees(answer);
 
-    str_ans << "</span></p>\n"
-               "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:20pt;\"><br /></p>\n"
-               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">Разложение на неприводимые множители:</span></p>\n"
-               "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt;\">";
+    str_ans << "Разложение на неприводимые множители:\n";
 
     if (constant > 1) str_ans << constant;
     for (const auto &poly_and_degree : answer_with_degrees) {
         str_ans << str_polynomial(poly_and_degree, brackets);
     }
-    str_ans << "</span></p></body></html>";
     return str_ans.str();
 }
 
-class MyHandler {
-public:
-    HTTP::ResponseHandle fact(const Rest::Request& request, Http::ResponseWriter response) {
-        try {
-            auto body = request.body();
-
-            // Парсинг JSON из тела запроса
-            auto json = nlohmann::json::parse(body);
-
-            // Получаем строку многочлена из JSON
-            string polynomial_str = json["polynomial"];
-
-            // Здесь можно выполнить парсинг строки многочлена в структуру polynomial
-
-            // Выполняем факторизацию многочлена
-            polynomial poly; // Здесь нужно проинициализировать ваш многочлен из строки polynomial_str
-            auto result = factorize(poly);
-
-            // Преобразование результата факторизации обратно в JSON
-            nlohmann::json response_json;
-            // Здесь преобразуйте result.result в JSON
-            response_json["success"] = result.success;
-            // Здесь добавьте преобразованный результат факторизации в response_json
-
-            // Отправляем JSON в качестве ответа
-            return response.send(Http::Code::Ok, response_json.dump(), MIME(Application, Json));
-        } catch (const exception& e) {
-            return response.send(Http::Code::Internal_Server_Error, e.what());
-        }
-    }
-};
-
-int main() {
-//     string req = "4 24 80 136 108 32";
-//     cout << get_str_answer(req);
-
-    Address addr(Ipv4::any(), Port(9080));
-    auto opts = Http::Endpoint::options().threads(1);
-    Http::Endpoint server(addr);
-    server.init(opts);
-
-    // Создание маршрутизатора
-    Rest::Router router;
-
-    // Обработчик POST-запросов для URL '/factorize'
-    MyHandler myHandler;
-    router.post("/factorize", Rest::Routes::bind(&MyHandler::fact, &myHandler));
-
-    // Установка маршрутов
-    server.setHandler(router.handler());
-
-    // Запуск сервера
-    server.serve();
-    return 0;
+int main(int argc, char* argv[]) {
+    //system("chcp 65001");
+    string inputString = argv[1];
+    cout << get_str_answer(inputString);
 }
