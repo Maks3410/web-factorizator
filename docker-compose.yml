@@ -1,9 +1,9 @@
 version: '3'
 services:
   frontend:
-    build: .
+    build: ./FRONTEND
     ports:
-      - "8000:8000"
+      - "8001:8001"
     networks:
       - app-network
 
@@ -17,3 +17,4 @@ services:
 networks:
   app-network:
     driver: bridge
+

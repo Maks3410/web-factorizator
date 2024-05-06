@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Факторизация многочленов</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
+    <script src="js/script.js"></script>
+    <style>
+        body{
+            background-color: cornflowerblue;
+            font-size: 30px;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            text-align: center;
+        }
+
+        .title{
+            margin-top: 30px;
+        }
+
+        input[type="text"] {
+            margin-top: 50px;
+            padding: 0.375rem 0.75rem;
+            font-size: 3rem;
+            line-height: 1.5;
+            border: 10px #ffffff;
+            border-radius: 10px;
+        }
+
+        input[type="submit"] {
+            margin-top: 50px;
+            padding: 0.375rem 0.75rem;
+            font-size: 2rem;
+            line-height: 1.5;
+            border: 10px #ffffff;
+            border-radius: 10px;
+        }
+
+        #fact {
+            font-size: 20px;
+            padding: 5px;
+            margin-bottom: 20px;
+            background-color: #20214F;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #show {
+            display: none;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Факторизация многочлена</h1>
+    <form id="polynomialForm">
+        <label for="coefficients">Введите коэффициенты многочлена (разделенные пробелом):</label>
+        <br>
+        <input type="text" id="coefficients" name="coefficients"><br><br>
+        <button id="fact" type="submit">Факторизировать</button>
+    </form>
+    <div id="show">
+        Вы ввели:
+        <div id="pol">
+
+        </div>
+    </div>
+    Результат:
+    <br>
+    <div id="result"></div>
+</main>
+
+</body>
+</html>
