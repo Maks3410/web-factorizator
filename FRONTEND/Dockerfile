@@ -5,6 +5,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY index.html .
 COPY ./js ./js
 
-EXPOSE 8001
+EXPOSE 8000
 
 CMD ["nginx", "-g", "daemon off;"]
