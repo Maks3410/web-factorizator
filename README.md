@@ -1,6 +1,6 @@
 <div id="header" align="center">
-  <h2>Hello, this is project for TRPP by RTU MIREA students (Frolov Leonid, Ignatyev Maksim, Nosov Dmitriy)</h2> 
-  <h3>The topic of the project is the factorization of polynomials</h3>
-  <h3>Stack: Node.js, HTML/CSS/JS, Docker</h3>
-  <h3>To start the project, you can enter the command 'cmake.exe --build cmake-build-debug --target TRPP_Project -j 18'</h3>
+  <h2>Web application for polynomial factorization.</h2> 
+  <h3>Stack: Node.js, HTML/CSS/JS, Docker, low-code in C++</h3>
+  <h4>This is a university project by RTU MIREA students (Ignatyev Maksim, Frolov Leonid, Nosov Dmitriy)</h3>
+  <h4>To start the project, type 'docker-compose up' in command line and visit localhost:8000</h3>
 </div>
